@@ -2,14 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
-use App\Models\User;
 
 class AuthController extends Controller
 {
+    /*
+    |--------------------------------------------------------------------------
+    | Registration
+    |--------------------------------------------------------------------------
+    */
+
     public function showRegister()
     {
         return view('auth.register');
@@ -17,7 +23,6 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        // Validate registration fields and CAPTCHA response
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
@@ -25,44 +30,60 @@ class AuthController extends Controller
             'g-recaptcha-response' => 'required|string',
         ]);
 
+        $secretKey = config('services.recaptcha.secret_key');
+
+        if (empty($secretKey)) {
+            return back()
+                ->withErrors([
+                    'recaptcha' => 'CAPTCHA is not configured correctly. Please contact the administrator.',
+                ])
+                ->withInput($request->except([
+                    'password',
+                    'password_confirmation',
+                    'g-recaptcha-response',
+                ]));
+        }
+
         // Verify CAPTCHA with Google
         try {
             $response = Http::asForm()
                 ->timeout(10)
                 ->post('https://www.google.com/recaptcha/api/siteverify', [
-                    'secret' => config('services.recaptcha.secret_key'),
+                    'secret' => $secretKey,
                     'response' => $validated['g-recaptcha-response'],
                     'remoteip' => $request->ip(),
                 ]);
 
-            if (!$response->successful() ||
-                !$response->json('success')) {
-
+            if (
+                !$response->successful() ||
+                !$response->json('success', false)
+            ) {
                 return back()
                     ->withErrors([
-                        'recaptcha' => 'Please complete the CAPTCHA verification correctly.'
+                        'recaptcha' => 'Please complete the CAPTCHA verification correctly.',
                     ])
                     ->withInput($request->except([
                         'password',
                         'password_confirmation',
-                        'g-recaptcha-response'
+                        'g-recaptcha-response',
                     ]));
             }
 
         } catch (\Throwable $e) {
+            report($e);
 
             return back()
                 ->withErrors([
-                    'recaptcha' => 'CAPTCHA verification is temporarily unavailable. Please try again.'
+                    'recaptcha' => 'CAPTCHA verification is temporarily unavailable. Please try again.',
                 ])
                 ->withInput($request->except([
                     'password',
                     'password_confirmation',
-                    'g-recaptcha-response'
+                    'g-recaptcha-response',
                 ]));
         }
 
-        // Create customer account only after successful verification
+        // Create customer account
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
@@ -70,12 +91,21 @@ class AuthController extends Controller
             'role' => 'customer',
         ]);
 
+        // Automatically log in the new customer
         Auth::login($user);
 
+        // Regenerate session after authentication
         $request->session()->regenerate();
 
-        return redirect()->route('dashboard');
+        return redirect()->route('dashboard')
+            ->with('success', 'Your GownEase account has been created successfully!');
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Login
+    |--------------------------------------------------------------------------
+    */
 
     public function showLogin()
     {
@@ -97,10 +127,16 @@ class AuthController extends Controller
 
         return back()
             ->withErrors([
-                'email' => 'The email or password is incorrect.'
+                'email' => 'The email or password is incorrect.',
             ])
             ->onlyInput('email');
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Logout
+    |--------------------------------------------------------------------------
+    */
 
     public function logout(Request $request)
     {
@@ -109,6 +145,7 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login');
+        return redirect()->route('login')
+            ->with('success', 'You have been logged out successfully.');
     }
 }
