@@ -5,7 +5,6 @@ app_subdir = "Gownease"
 
 config = laravel_config(
     schema = 1,
-    app_subdir = "Gownease",
     node_package_manager = "npm",
     node_build_command = "npm run build",
     node_version = "24",
