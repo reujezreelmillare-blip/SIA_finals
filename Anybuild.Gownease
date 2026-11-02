@@ -1,4 +1,3 @@
-
 load("//anybuild/tools:laravel.bzl", "laravel_build", "laravel_config", "laravel_serve")
 
 app_subdir = "Gownease"
