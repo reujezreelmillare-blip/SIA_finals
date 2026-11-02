@@ -1,9 +1,10 @@
-```blade
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>@yield('title', 'GownEase')</title>
 
@@ -316,17 +317,16 @@
     <nav class="ge-navbar">
         <div class="container ge-navbar-inner">
 
-            <!-- Brand on the left -->
             <a class="ge-logo" href="{{ url('/') }}">
                 GownEase
             </a>
 
-            <!-- Navigation actions on the right -->
             <div class="ge-nav-actions">
                 @auth
                     @php
                         $currentUser = auth()->user();
                         $cartData = session('gown_cart', []);
+
                         $cartCount = collect($cartData)->sum(
                             fn ($quantity) => is_array($quantity)
                                 ? (int) ($quantity['quantity'] ?? 1)
@@ -338,7 +338,6 @@
                         {{ $currentUser->name }}
                     </span>
 
-                    {{-- Show the cart to customers, not administrators --}}
                     @if (!$currentUser->isAdmin())
                         <a href="{{ route('cart.index') }}"
                            class="ge-cart-link"
@@ -353,6 +352,7 @@
                           method="POST"
                           class="ge-logout-form">
                         @csrf
+
                         <button type="submit" class="ge-logout-button">
                             Logout
                         </button>
@@ -372,6 +372,7 @@
     </nav>
 
     <main class="container py-4">
+
         @if (session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}
@@ -395,7 +396,7 @@
         @endif
 
         @yield('content')
+
     </main>
 </body>
 </html>
-```
