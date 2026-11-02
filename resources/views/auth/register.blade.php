@@ -18,58 +18,74 @@
                 @csrf
 
                 <div class="mb-3">
-                    <label class="form-label">Full name</label>
-                    <input type="text"
-                           name="name"
-                           value="{{ old('name') }}"
-                           class="form-control"
-                           maxlength="100"
-                           required>
-
+                    <label for="name" class="form-label">Full name</label>
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value="{{ old('name') }}"
+                        class="form-control"
+                        maxlength="100"
+                        autocomplete="name"
+                        required
+                    >
                     @error('name')
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Email address</label>
-                    <input type="email"
-                           name="email"
-                           value="{{ old('email') }}"
-                           class="form-control"
-                           required>
-
+                    <label for="email" class="form-label">Email address</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value="{{ old('email') }}"
+                        class="form-control"
+                        autocomplete="email"
+                        required
+                    >
                     @error('email')
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Password</label>
-                    <input type="password"
-                           name="password"
-                           class="form-control"
-                           minlength="8"
-                           required>
-
+                    <label for="password" class="form-label">Password</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="form-control"
+                        minlength="8"
+                        autocomplete="new-password"
+                        required
+                    >
                     @error('password')
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Confirm password</label>
-                    <input type="password"
-                           name="password_confirmation"
-                           class="form-control"
-                           minlength="8"
-                           required>
+                    <label for="password_confirmation" class="form-label">
+                        Confirm password
+                    </label>
+                    <input
+                        type="password"
+                        id="password_confirmation"
+                        name="password_confirmation"
+                        class="form-control"
+                        minlength="8"
+                        autocomplete="new-password"
+                        required
+                    >
                 </div>
 
                 <!-- Google reCAPTCHA -->
                 <div class="mb-3">
-                    <div class="g-recaptcha"
-                         data-sitekey="{{ config('services.recaptcha.site_key') }}">
+                    <div
+                        class="g-recaptcha"
+                        data-sitekey="{{ config('services.recaptcha.site_key') }}">
                     </div>
 
                     @error('g-recaptcha-response')
@@ -95,5 +111,9 @@
     </div>
 </div>
 
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script
+    src="https://www.google.com/recaptcha/api.js"
+    async
+    defer>
+</script>
 @endsection
