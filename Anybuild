@@ -19,7 +19,4 @@ laravel_serve(
     config,
     build,
     name = "GownEase",
-    commands = {
-        "after_deploy": "php artisan migrate --force",
-    },
 )
