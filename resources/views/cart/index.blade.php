@@ -1,4 +1,3 @@
-```blade
 @extends('layouts.app')
 
 @section('title', 'Shopping Cart | GownEase')
@@ -152,4 +151,3 @@
     @endif
 </div>
 @endsection
-```
