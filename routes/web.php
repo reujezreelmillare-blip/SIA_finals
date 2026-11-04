@@ -1,9 +1,32 @@
+
 <?php
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GownController;
+
+/*
+|--------------------------------------------------------------------------
+| Gown Image Route
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/gown-images/{filename}', function ($filename) {
+
+    $filename = basename($filename);
+
+    $imagePath = storage_path('app/public/gowns/' . $filename);
+
+    abort_unless(is_file($imagePath), 404);
+
+    return response()->file($imagePath, [
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+
+})->where('filename', '[A-Za-z0-9._-]+')
+  ->name('gown.images');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +39,7 @@ Route::get('/', function () {
         auth()->check() ? 'dashboard' : 'login'
     );
 });
+
 
 /*
 |--------------------------------------------------------------------------
@@ -39,6 +63,7 @@ Route::middleware('guest')->group(function () {
 
 });
 
+
 /*
 |--------------------------------------------------------------------------
 | Authenticated Routes
@@ -54,6 +79,7 @@ Route::middleware('auth')->group(function () {
         ->name('logout');
 
 });
+
 
 /*
 |--------------------------------------------------------------------------
@@ -74,6 +100,7 @@ Route::middleware(['auth', 'admin'])
 
     });
 
+
 /*
 |--------------------------------------------------------------------------
 | Customer Shop Routes
@@ -85,6 +112,7 @@ Route::get('/shop', [GownController::class, 'shop'])
 
 Route::get('/shop/{gown}', [GownController::class, 'showProduct'])
     ->name('shop.show');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -103,6 +131,7 @@ Route::patch('/cart/{gown}', [GownController::class, 'updateCart'])
 
 Route::delete('/cart/{gown}', [GownController::class, 'removeFromCart'])
     ->name('cart.remove');
+
 
 /*
 |--------------------------------------------------------------------------
