@@ -11,7 +11,7 @@ config = laravel_config(
     php_version = "8.3.29",
     php_public_dir = "public",
     commands = {
-        "after_deploy": "php artisan storage:link && php artisan migrate --force",
+        "after_deploy": "php artisan storage:link",
     },
 )
 
