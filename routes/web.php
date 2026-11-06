@@ -2,9 +2,14 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GownController;
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\RentalReturnController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -78,6 +83,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])
         ->name('logout');
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Rental Receipt
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/receipt', [GownController::class, 'receipt'])
+        ->name('receipt.show');
+
 });
 
 
@@ -92,13 +107,61 @@ Route::middleware(['auth', 'admin'])
     ->name('admin.')
     ->group(function () {
 
+        /*
+        | Admin Dashboard
+        */
+
         Route::get('/', function () {
             return redirect()->route('dashboard');
         })->name('dashboard');
 
+
+        /*
+        | Gown Management
+        */
+
         Route::resource('gowns', GownController::class);
 
-    });
+
+        /*
+        | Booking Management
+        */
+
+        Route::get('/bookings', [BookingController::class, 'index'])
+            ->name('bookings.index');
+
+        Route::get('/bookings/{id}', [BookingController::class, 'show'])
+            ->name('bookings.show');
+
+        Route::patch('/bookings/{id}/status', [BookingController::class, 'updateStatus'])
+            ->name('bookings.updateStatus');
+
+
+        /*
+        | Payment Management
+        */
+
+        Route::get('/payments', [PaymentController::class, 'index'])
+            ->name('payments.index');
+
+        Route::post('/payments', [PaymentController::class, 'store'])
+            ->name('payments.store');
+
+        Route::patch('/payments/{id}/status', [PaymentController::class, 'updateStatus'])
+            ->name('payments.updateStatus');
+
+
+        /*
+        | Rental Return Management
+        */
+
+        Route::get('/returns', [RentalReturnController::class, 'index'])
+            ->name('returns.index');
+
+        Route::post('/returns', [RentalReturnController::class, 'store'])
+            ->name('returns.store');
+
+});
 
 
 /*
@@ -144,3 +207,4 @@ Route::get('/checkout', [GownController::class, 'checkout'])
 
 Route::post('/checkout', [GownController::class, 'processCheckout'])
     ->name('checkout.process');
+
